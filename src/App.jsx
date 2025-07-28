@@ -1,12 +1,13 @@
 
 import './App.css'
-import Display from './component/Display'
+
+import Routing from './Routing'
 
 function App() {
   
   return (
     <>
-      <Display />
+      <Routing />
     </>
   )
 }
