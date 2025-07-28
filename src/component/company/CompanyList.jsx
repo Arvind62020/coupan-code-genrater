@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import CompanyItems from './ComapnyItems';
+import { Link } from 'react-router-dom';
 
 function CompanyList() {
     const companies = useSelector(state => state.companies);
@@ -10,6 +11,7 @@ function CompanyList() {
             <h3>Company List:</h3>
             {companies.map(company => {
                 return (
+                    <>
                     <CompanyItems 
                         key={company.id} 
                         id={company.id} 
@@ -17,10 +19,15 @@ function CompanyList() {
                         type={company.type}
                         product={company.product} 
                     />
+                    <Link to='/'>home</Link>
+                    
+                    </>
+                    
                 )
             })}
         </>
     )
 }
+
 
 export default CompanyList;
