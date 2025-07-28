@@ -1,25 +1,30 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from "react-router-dom";
 import { addCoupan } from '../redux/slices/coupanSlice.js';
 import { generateCode } from './CoupanCodeGenrater';
 import { useState } from 'react';
 
 function CoupanSubmitSec() {
     const dispatch = useDispatch();
-    const companies = useSelector(state => state.companies); // Get companies from Redux store
-    //const products = useSelector(state => state.companies); // Get companies from Redux store
-
+    const companies = useSelector(state => state.companies);
+    
     const [company, setCompany] = useState('');
     const [product, setProduct] = useState('');
     const [offer, setOffer] = useState('');
     const [showCompanyList, setShowCompanyList] = useState(false);
-    const [showProductsList, setShowProductsList] = useState(false);
+    
+    const navigate = useNavigate();
+    
+    function handleCompany() {
+        navigate('/company');
+    }
 
     function isOnlyNumbersWithSign(input) {
         return /^[+-]?\d+$/.test(input);
     }
 
     function validateString(input) {
-        return /^[a-z ]+[0-9]*$/i.test(input); // Added 'i' flag for case-insensitive
+        return /^[a-z ]+[0-9]*$/i.test(input);
     }
 
     const handleGenerate = (e) => {
@@ -47,86 +52,97 @@ function CoupanSubmitSec() {
             offer: offer
         }));
 
-        // Clear form after submission
         setCompany('');
         setProduct('');
         setOffer('');
     }
 
-    const handleCompanySelect = (selectedCompany) => {
+    const handleCompanySelect = (selectedCompany, selectedProducts) => {
         setCompany(selectedCompany);
-        setShowCompanyList(false);
-    }
-    const handleProductsSelect = (selectedProducts) => {
         setProduct(selectedProducts);
-        setShowProductsList(false);
+        setShowCompanyList(false);
     }
 
     return (
-        <>
-            <div className="flex flex-col gap-4 mb-6 relative">
+        <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Coupon Generator</h2>
+            
+            <div className="space-y-4">
                 <div className="relative">
-                    <input 
-                        type="text" 
-                        placeholder='Company' 
-                        onChange={e => setCompany(e.target.value)} 
+                    <div className="flex justify-between items-center mb-1">
+                        <label htmlFor="company" className="block text-sm font-medium text-gray-700">Company</label>
+                        <button
+                            onClick={handleCompany}
+                            className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                            type="button"
+                        >
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add New Company
+                        </button>
+                    </div>
+                    <input
+                        id="company"
+                        type="text"
+                        placeholder="Enter company name"
+                        onChange={e => setCompany(e.target.value)}
                         onFocus={() => setShowCompanyList(true)}
+                        onBlur={() => setTimeout(() => setShowCompanyList(false), 200)}
                         value={company}
-                        className="p-2 border rounded w-full" 
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     />
                     {showCompanyList && companies.length > 0 && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-60 overflow-auto">
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                             {companies.map(comp => (
                                 <div 
                                     key={comp.id}
-                                    className="p-2 hover:bg-gray-100 cursor-pointer"
-                                    onClick={() => handleCompanySelect(comp.company)}
+                                    className="px-4 py-2 hover:bg-blue-50 cursor-pointer transition-colors"
+                                    onClick={() => handleCompanySelect(comp.company, comp.product)}
                                 >
-                                    {comp.company}
+                                    <p className="font-medium text-gray-800">{comp.company}</p>
                                 </div>
                             ))}
                         </div>
                     )}
                 </div>
-               <div className="relative">
-                <input 
-                    type="text" 
-                    placeholder='Product' 
-                    onChange={e => setProduct(e.target.value)} 
-                    onFocus={() => setShowProductsList(true)}
-                    value={product}
-                    className="p-2 border rounded" 
-                />
-                {showProductsList && companies.length > 0 && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-60 overflow-auto">
-                            {companies.map(comp => (
-                                <div 
-                                    key={comp.id}
-                                    className="p-2 hover:bg-gray-100 cursor-pointer"
-                                    onClick={() => handleProductsSelect(comp.product)}
-                                >
-                                    {comp.product}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                
+                <div>
+                    <label htmlFor="product" className="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                    <input
+                        id="product"
+                        type="text"
+                        placeholder="Enter product name"
+                        onChange={e => setProduct(e.target.value)}
+                        value={product}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    />
                 </div>
-                <input 
-                    type="text" 
-                    placeholder='Offer' 
-                    onChange={e => setOffer(e.target.value)} 
-                    value={offer}
-                    className="p-2 border rounded" 
-                />
-                <button 
-                    onClick={handleGenerate} 
-                    className='font-sans text-lg text-center px-4 py-2 bg-gray-500 rounded border-black border-solid shadow-sm hover:bg-blue-500 hover:text-white transition-colors' 
-                    type='button'
-                >
-                    Generate Coupon
-                </button>
+                
+                <div>
+                    <label htmlFor="offer" className="block text-sm font-medium text-gray-700 mb-1">Offer</label>
+                    <input
+                        id="offer"
+                        type="text"
+                        placeholder="Enter offer (e.g., 10, -20, +15)"
+                        onChange={e => setOffer(e.target.value)}
+                        value={offer}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    />
+                </div>
+                
+                <div className="flex space-x-4">
+                    <button
+                        onClick={handleGenerate}
+                        className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-md shadow-md hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all transform hover:scale-105"
+                        type="button"
+                    >
+                        Generate Coupon
+                        <span className="ml-2">✨</span>
+                    </button>
+                </div>
             </div>
-        </>
+        </div>
     )
 }
 
